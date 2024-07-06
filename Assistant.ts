@@ -1,9 +1,9 @@
-#!/usr/bin/env -S npm run tsn -T
-
+#!/usr/bin/env -S ts-node
 import OpenAI from 'openai';
 import readline from 'readline';
-import fs from 'fs';
-import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const openai = new OpenAI();
 
@@ -12,9 +12,17 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 
-const logFilePath = path.join(__dirname, 'logs', 'chat_log.txt');
+const assistantId = process.env.ASSISTANT_ID as string;
+const additionalInstructions = process.env.ADDITIONAL_INSTRUCTIONS as string;
 
-const assistantId = 'asst_kp6O4R8RffQtWVwaIovWPqCm';
+if (!assistantId) {
+  throw new Error("Environment variable ASSISTANT_ID must be set.");
+}
+
+if (!additionalInstructions) {
+  throw new Error("Environment variable ADDITIONAL_INSTRUCTIONS must be set.");
+}
+
 let thread: any | null = null;
 
 interface Message {
@@ -23,14 +31,6 @@ interface Message {
 }
 
 let messages: Message[] = [];
-
-function logToFile(message: string) {
-  fs.appendFile(logFilePath, message + '\n', (err) => {
-    if (err) {
-      console.error('Failed to write to log file:', err);
-    }
-  });
-}
 
 async function createThread(userMessage: string) {
   try {
@@ -54,7 +54,7 @@ async function runAssistant(threadId: string, assistantId: string) {
   try {
     const stream = await openai.beta.threads.runs.create(threadId, {
       assistant_id: assistantId,
-      additional_instructions: 'Please address the user as Jane Doe. The user has a premium account.',
+      additional_instructions: additionalInstructions,
       stream: true,
     });
 
@@ -64,18 +64,19 @@ async function runAssistant(threadId: string, assistantId: string) {
       if (event.event === 'thread.message.delta') {
         const chunk = event.data.delta.content?.[0];
         if (chunk && 'text' in chunk && chunk.text?.value) {
+          process.stdout.write(chunk.text.value);
           assistantResponse += chunk.text.value;
         }
       }
     }
 
     if (assistantResponse) {
-      console.log(assistantResponse);
       messages.push({ role: 'assistant', content: assistantResponse });
 
       if (messages.length > 32) {
         messages = messages.slice(messages.length - 32);
       }
+      console.log('\n');  // Add newline after assistant response
     }
     promptUser();
   } catch (error) {

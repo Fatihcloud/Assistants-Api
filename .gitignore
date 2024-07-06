@@ -5,6 +5,12 @@ yarn-error.log
 dist/
 build/
 
+# v1.ts ve v2.ts git eklenmeyecek
+v1.ts
+v2.ts
+
+.env
+
 # Logs
 logs
 *.log
