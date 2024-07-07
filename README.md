@@ -1,5 +1,5 @@
 
-# Chat Application with OpenAI Integration
+# Assistants-Api
 
 This is a simple command-line chat application that integrates with OpenAI's API to interact with an assistant. The application logs user and assistant messages to a file and maintains a conversation thread.
 
@@ -17,8 +17,15 @@ This is a simple command-line chat application that integrates with OpenAI's API
 
 ## Installation
 
-1. Clone the repository or copy the script to your local machine.
-2. Run `npm install` to install the required packages.
+1. Clone the repository or download the project files.
+    ```bash
+    git clone <repository-url>
+    cd Assistants-Api
+    ```
+2. Install the required packages.
+    ```bash
+    npm install
+    ```
 
 ## Configuration
 
@@ -31,11 +38,11 @@ ADDITIONAL_INSTRUCTIONS=Please address the user as Fatih Bulut. The user has a p
 
 ## Usage
 
-1. Save the script as `Assistant.ts`.
+1. Save the script as `main.ts`.
 2. Run the script using the following command:
-   ```bash
-   npm run tsn -T Assistant.ts
-   ```
+    ```bash
+    npm run tsn -T main.ts
+    ```
 3. Enter your messages when prompted.
 
 ## Code Overview
@@ -65,7 +72,7 @@ ADDITIONAL_INSTRUCTIONS=Please address the user as Fatih Bulut. The user has a p
 
 ## Example
 
-```
+```plaintext
 Mesajınızı girin: Hello!
 Assistant: Hello Fatih Bulut, how can I assist you today?
 ```
@@ -75,3 +82,16 @@ Assistant: Hello Fatih Bulut, how can I assist you today?
 - The assistant will address the user as Fatih Bulut and assumes the user has a premium account.
 - The conversation context is maintained within a session but not across different sessions.
 - The log file (`chat_log.txt`) will be created in the `logs` directory.
+
+## Contributing
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes.
+4. Commit your changes (`git commit -am 'Add new feature'`).
+5. Push to the branch (`git push origin feature-branch`).
+6. Create a new Pull Request.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
