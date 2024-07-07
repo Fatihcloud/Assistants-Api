@@ -1,19 +1,18 @@
 
 # Assistants-Api
 
-This is a simple command-line chat application that integrates with OpenAI's API to interact with an assistant. The application logs user and assistant messages to a file and maintains a conversation thread.
+This is a simple command-line chat application that integrates with OpenAI's API to interact with an assistant. The application logs user and assistant messages to a SQLite database and maintains a conversation thread.
 
 ## Features
 
 - Interactive chat with an OpenAI assistant
-- Logs conversation to a file
+- Logs conversation to a SQLite database
 - Maintains conversation context within a session
 
 ## Prerequisites
 
 - Node.js and npm installed
 - OpenAI API key
-- Create a directory named `logs` in the same directory as the script
 
 ## Installation
 
@@ -32,8 +31,8 @@ This is a simple command-line chat application that integrates with OpenAI's API
 Create a `.env` file in the root directory of the project with the following content:
 
 ```plaintext
-ASSISTANT_ID=ASSISTANT_ID
-ADDITIONAL_INSTRUCTIONS=Please address the user as Fatih Bulut. The user has a premium account.
+ASSISTANT_ID=your-assistant-id
+ADDITIONAL_INSTRUCTIONS=Please address the user as [Your Name]. The user has a premium account.
 ```
 
 ## Usage
@@ -41,47 +40,65 @@ ADDITIONAL_INSTRUCTIONS=Please address the user as Fatih Bulut. The user has a p
 1. Save the script as `main.ts`.
 2. Run the script using the following command:
     ```bash
-    npm run tsn -T main.ts
+    npx ts-node src/main.ts
     ```
 3. Enter your messages when prompted.
+
+## API Endpoints
+
+### Send a Message
+
+```sh
+curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{
+  "message": "Hello, how are you?"
+}'
+```
+
+### Get Messages
+
+```sh
+curl -X GET http://localhost:3000/api/messages
+```
+
+### Get All Thread IDs
+
+```sh
+curl -X GET http://localhost:3000/api/threads
+```
 
 ## Code Overview
 
 ### Imports
 
 - `OpenAI` from `openai`: For interacting with the OpenAI API.
-- `readline`: For reading user input from the command line.
-- `fs` and `path`: For file system operations.
+- `express`, `body-parser`: For creating the API server.
+- `dotenv`: For environment variable management.
+- `better-sqlite3`: For SQLite database operations.
 
 ### Variables
 
 - `openai`: Instance of the OpenAI client.
-- `rl`: Readline interface for user input.
-- `logFilePath`: Path to the log file.
-- `assistantId`: ID of the assistant to interact with.
-- `thread`: Variable to store the current conversation thread.
-- `messages`: Array to store the conversation messages.
+- `chatDb`: Instance of the ChatDatabase class for database operations.
+- `chatService`: Instance of the ChatService class for handling chat logic.
 
 ### Functions
 
-- `logToFile(message)`: Appends a message to the log file.
-- `createThread(userMessage)`: Creates a new conversation thread with the initial user message.
-- `addMessageToThread(threadId, message)`: Adds a message to an existing thread.
-- `runAssistant(threadId, assistantId)`: Runs the assistant and streams responses.
-- `promptUser()`: Prompts the user for input and handles the conversation flow.
+- `ChatDatabase`: Manages database operations for saving and loading messages.
+- `ChatService`: Handles the chat logic and interactions with OpenAI.
+- `main.ts`: Sets up the Express server and defines API endpoints.
 
 ## Example
 
 ```plaintext
-Mesajınızı girin: Hello!
-Assistant: Hello Fatih Bulut, how can I assist you today?
+Enter your message: Hello!
+Assistant: Hello [Your Name], how can I assist you today?
 ```
 
 ## Notes
 
-- The assistant will address the user as Fatih Bulut and assumes the user has a premium account.
+- The assistant will address the user as specified in the `.env` file.
 - The conversation context is maintained within a session but not across different sessions.
-- The log file (`chat_log.txt`) will be created in the `logs` directory.
+- The SQLite database (`chat.db`) will store all messages.
 
 ## Contributing
 
