@@ -16,7 +16,12 @@ const app = express();
 const port = 3000;
 
 const httpServer = createServer(app);
-const io = new Server(httpServer);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
 
 app.use(bodyParser.json());
 app.use(cors());
@@ -36,23 +41,28 @@ if (!assistantId || !additionalInstructions) {
 
 app.post('/api/chat', async (req, res) => {
   const { message, threadId } = req.body;
+  console.log('Received message:', message, 'for thread:', threadId);
   if (!threadId) {
-    await chatService.createThread(message);
+    const newThreadId = await chatService.createThread(message);
+    console.log('Created new thread:', newThreadId);
+    res.json({ threadId: newThreadId, messages: chatService.messages });
   } else {
     const userMessage: Message = { role: 'user', content: message };
-    chatService.messages.push(userMessage);
-    chatDb.saveMessage(threadId, userMessage);
     await chatService.addMessageToThread(threadId, userMessage);
     await chatService.runAssistant(threadId);
+    const updatedMessages = chatDb.loadMessages(threadId); // Mevcut mesajları tekrar yükle
+    console.log('Updated messages for thread:', threadId, updatedMessages);
+    res.json({ threadId, messages: updatedMessages });
   }
-  res.json({ threadId: chatService.threadId, messages: chatService.messages });
-  io.emit('newMessage', { threadId: chatService.threadId, messages: chatService.messages });
+  io.emit('newMessage', { threadId, messages: chatService.messages });
 });
 
 app.get('/api/messages', (req, res) => {
   const threadId = req.query.threadId as string;
+  console.log('Fetching messages for thread:', threadId);
   if (threadId) {
     const messages = chatDb.loadMessages(threadId);
+    console.log('Fetched messages for thread:', threadId, messages);
     res.json({ messages });
   } else {
     res.json({ messages: [] });
@@ -60,7 +70,9 @@ app.get('/api/messages', (req, res) => {
 });
 
 app.get('/api/threads', (req, res) => {
+  console.log('Fetching all thread IDs');
   const threads = chatDb.getAllThreadIds();
+  console.log('Fetched thread IDs:', threads);
   res.json({ threads });
 });
 

@@ -7,17 +7,20 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Chat Interface</h1>
-    <div>
-        <h2>Messages</h2>
-        <ul id="message-list"></ul>
-        <input type="text" id="message-input" placeholder="Enter your message">
-        <button onclick="sendMessage()">Send</button>
-    </div>
-    <div>
-        <h2>Threads</h2>
-        <ul id="thread-list"></ul>
-        <button onclick="createNewThread()">Create New Thread</button>
+    <div class="container">
+        <div class="sidebar">
+            <h2>Threads</h2>
+            <ul id="thread-list"></ul>
+            <button onclick="createNewThread()">Create New Thread</button>
+        </div>
+        <div class="chat-area">
+            <h2>Messages</h2>
+            <ul id="message-list"></ul>
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="Enter your message">
+                <button type="submit">Send</button>
+            </form>
+        </div>
     </div>
     <!-- socket.io-client kütüphanesini ekleyin -->
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
