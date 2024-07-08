@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Chat Interface</h1>
+    <div>
+        <h2>Messages</h2>
+        <ul id="message-list"></ul>
+        <input type="text" id="message-input" placeholder="Enter your message">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <div>
+        <h2>Threads</h2>
+        <ul id="thread-list"></ul>
+        <button onclick="createNewThread()">Create New Thread</button>
+    </div>
+    <!-- socket.io-client kütüphanesini ekleyin -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

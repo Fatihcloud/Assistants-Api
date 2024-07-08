@@ -1,5 +1,5 @@
-import OpenAI from "openai";
-import { ChatDatabase, Message } from "../controllers/ChatDatabase";
+import OpenAI from 'openai';
+import { ChatDatabase, Message } from '../controllers/ChatDatabase';
 
 export class ChatService {
   private _threadId: string | null = null;

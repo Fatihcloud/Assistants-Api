@@ -3,15 +3,26 @@ import OpenAI from 'openai';
 import express from 'express';
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import path from 'path';
 import { ChatDatabase, Message } from './controllers/ChatDatabase';
 import { ChatService } from './services/ChatService';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 
 dotenv.config();
 
 const app = express();
 const port = 3000;
 
+const httpServer = createServer(app);
+const io = new Server(httpServer);
+
 app.use(bodyParser.json());
+app.use(cors());
+
+// Statik dosyaları sunmak için
+app.use(express.static(path.join(__dirname, '../public')));
 
 const openai = new OpenAI();
 const assistantId = process.env.ASSISTANT_ID as string;
@@ -24,22 +35,24 @@ if (!assistantId || !additionalInstructions) {
 }
 
 app.post('/api/chat', async (req, res) => {
-  const { message } = req.body;
-  if (!chatService.threadId) {
+  const { message, threadId } = req.body;
+  if (!threadId) {
     await chatService.createThread(message);
   } else {
     const userMessage: Message = { role: 'user', content: message };
     chatService.messages.push(userMessage);
-    chatDb.saveMessage(chatService.threadId, userMessage);
-    await chatService.addMessageToThread(chatService.threadId, userMessage);
-    await chatService.runAssistant(chatService.threadId);
+    chatDb.saveMessage(threadId, userMessage);
+    await chatService.addMessageToThread(threadId, userMessage);
+    await chatService.runAssistant(threadId);
   }
-  res.json({ messages: chatService.messages });
+  res.json({ threadId: chatService.threadId, messages: chatService.messages });
+  io.emit('newMessage', { threadId: chatService.threadId, messages: chatService.messages });
 });
 
 app.get('/api/messages', (req, res) => {
-  if (chatService.threadId) {
-    const messages = chatDb.loadMessages(chatService.threadId);
+  const threadId = req.query.threadId as string;
+  if (threadId) {
+    const messages = chatDb.loadMessages(threadId);
     res.json({ messages });
   } else {
     res.json({ messages: [] });
@@ -51,6 +64,6 @@ app.get('/api/threads', (req, res) => {
   res.json({ threads });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+httpServer.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
 });
