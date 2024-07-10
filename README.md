@@ -1,13 +1,14 @@
 
 # Assistants-Api
 
-This is a simple command-line chat application that integrates with OpenAI's API to interact with an assistant. The application logs user and assistant messages to a SQLite database and maintains a conversation thread.
+Assistants-Api is a chat application that integrates with OpenAI's API to facilitate interactive conversations with an assistant. The application logs user and assistant messages to a SQLite database, maintaining the conversation context within each thread.
 
 ## Features
 
 - Interactive chat with an OpenAI assistant
 - Logs conversation to a SQLite database
-- Maintains conversation context within a session
+- Maintains conversation context within threads
+- User-friendly interface for managing chat threads and messages
 
 ## Prerequisites
 
@@ -37,34 +38,12 @@ ADDITIONAL_INSTRUCTIONS=Please address the user as [Your Name]. The user has a p
 
 ## Usage
 
-1. Save the script as `main.ts`.
-2. Run the script using the following command:
+1. Start the server:
     ```bash
     npx ts-node src/main.ts
     ```
-3. Enter your messages when prompted.
-
-## API Endpoints
-
-### Send a Message
-
-```sh
-curl -X POST http://localhost:3000/api/chat -H "Content-Type: application/json" -d '{
-  "message": "Hello, how are you?"
-}'
-```
-
-### Get Messages
-
-```sh
-curl -X GET http://localhost:3000/api/messages
-```
-
-### Get All Thread IDs
-
-```sh
-curl -X GET http://localhost:3000/api/threads
-```
+2. Open your browser and navigate to `http://localhost:3000` to access the chat interface.
+3. Use the interface to create new threads, send messages, and view conversation history.
 
 ## Code Overview
 
@@ -75,32 +54,25 @@ curl -X GET http://localhost:3000/api/threads
 - `dotenv`: For environment variable management.
 - `better-sqlite3`: For SQLite database operations.
 
-### Variables
-
-- `openai`: Instance of the OpenAI client.
-- `chatDb`: Instance of the ChatDatabase class for database operations.
-- `chatService`: Instance of the ChatService class for handling chat logic.
-
-### Functions
+### Main Components
 
 - `ChatDatabase`: Manages database operations for saving and loading messages.
 - `ChatService`: Handles the chat logic and interactions with OpenAI.
 - `main.ts`: Sets up the Express server and defines API endpoints.
+- `app.js`: Manages the front-end logic and interactions with the server.
+- `index.html`: Provides the main structure for the user interface.
+- `styles.css`: Contains the styles for the user interface.
 
-## Example
+## Example Interaction
 
 ```plaintext
-Enter your message: Hello!
+User: Hello!
 Assistant: Hello [Your Name], how can I assist you today?
 ```
 
-## Notes
-
-- The assistant will address the user as specified in the `.env` file.
-- The conversation context is maintained within a session but not across different sessions.
-- The SQLite database (`chat.db`) will store all messages.
-
 ## Contributing
+
+We welcome contributions to improve Assistants-Api. Please follow these steps to contribute:
 
 1. Fork the repository.
 2. Create a new branch (`git checkout -b feature-branch`).
