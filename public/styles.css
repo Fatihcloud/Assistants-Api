@@ -142,33 +142,88 @@ body {
 }
 
 #new-thread-button {
-    margin-top: 20px;
-    padding: 10px;
-    width: 100%;
-    border: none;
-    background-color: #3498db;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  #new-thread-button:hover {
-    background-color: #2980b9;
-  }
-  
-  .delete-button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    border: none;
-    background-color: #e74c3c;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .delete-button:hover {
-    background-color: #c0392b;
-  }
-   
+  margin-top: 20px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#new-thread-button:hover {
+  background-color: #2980b9;
+}
+
+.delete-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  border: none;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+}
+
+pre {
+  background: #1e1e1e;
+  padding: 1px;
+  border-radius: 5px;
+  overflow: auto;
+  position: relative;
+  color: #dcdcdc;
+}
+
+code {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+#typing-indicator {
+  display: none;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #bdc3c7;
+  color: #2c3e50;
+  align-self: flex-start;
+  margin-right: auto;
+  text-align: left;
+  font-style: italic;
+}
+
+@keyframes typing {
+  0% { content: ''; }
+  33% { content: '.'; }
+  66% { content: '..'; }
+  100% { content: '...'; }
+}
+
+#typing-indicator::after {
+  content: '';
+  animation: typing 1s steps(3, end) infinite;
+}
+
+.copy-button {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 1.2em;
+  cursor: pointer;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-button:hover {
+  color: #2980b9;
+}
