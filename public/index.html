@@ -1,29 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Interface</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Application</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <div class="sidebar">
-            <h2>Threads</h2>
-            <ul id="thread-list"></ul>
-            <button onclick="createNewThread()">Create New Thread</button>
-        </div>
-        <div class="chat-area">
-            <h2>Messages</h2>
-            <ul id="message-list"></ul>
-            <form id="message-form">
-                <input type="text" id="message-input" placeholder="Enter your message">
-                <button type="submit">Send</button>
-            </form>
-        </div>
+  <div id="app">
+    <div id="sidebar">
+      <h2>Threads</h2>
+      <ul id="thread-list"></ul>
+      <button id="new-thread-button" class="btn btn-primary">New Conversation</button>
     </div>
-    <!-- socket.io-client kütüphanesini ekleyin -->
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script src="app.js"></script>
+    <div id="chat-container">
+      <div id="chat-header">
+        <h2>Chat</h2>
+      </div>
+      <div id="messages"></div>
+      <form id="chat-form">
+        <input type="text" id="message-input" placeholder="Type a message" required>
+        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+      </form>
+    </div>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>

@@ -43,18 +43,18 @@ app.post('/api/chat', async (req, res) => {
   const { message, threadId } = req.body;
   console.log('Received message:', message, 'for thread:', threadId);
   if (!threadId) {
-    const newThreadId = await chatService.createThread(message);
-    console.log('Created new thread:', newThreadId);
-    res.json({ threadId: newThreadId, messages: chatService.messages });
+    await chatService.createThread(message);
+    console.log('Created new thread:', chatService.threadId);
+    res.json({ threadId: chatService.threadId, messages: chatService.messages });
   } else {
     const userMessage: Message = { role: 'user', content: message };
     await chatService.addMessageToThread(threadId, userMessage);
     await chatService.runAssistant(threadId);
-    const updatedMessages = chatDb.loadMessages(threadId); // Mevcut mesajları tekrar yükle
+    const updatedMessages = chatDb.loadMessages(threadId);
     console.log('Updated messages for thread:', threadId, updatedMessages);
     res.json({ threadId, messages: updatedMessages });
   }
-  io.emit('newMessage', { threadId, messages: chatService.messages });
+  io.emit('newMessage', { threadId: chatService.threadId, messages: chatService.messages });
 });
 
 app.get('/api/messages', (req, res) => {
@@ -74,6 +74,13 @@ app.get('/api/threads', (req, res) => {
   const threads = chatDb.getAllThreadIds();
   console.log('Fetched thread IDs:', threads);
   res.json({ threads });
+});
+
+app.delete('/api/thread/:threadId', (req, res) => {
+  const threadId = req.params.threadId;
+  console.log('Deleting thread:', threadId);
+  chatDb.deleteThread(threadId);
+  res.sendStatus(200);
 });
 
 httpServer.listen(port, () => {

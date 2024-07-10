@@ -1,5 +1,5 @@
-import OpenAI from 'openai';
-import { ChatDatabase, Message } from '../controllers/ChatDatabase';
+import OpenAI from "openai";
+import { ChatDatabase, Message } from "../controllers/ChatDatabase";
 
 export class ChatService {
   private _threadId: string | null = null;
@@ -43,6 +43,8 @@ export class ChatService {
   public async addMessageToThread(threadId: string, message: Message): Promise<void> {
     try {
       await this.openai.beta.threads.messages.create(threadId, { role: message.role, content: message.content });
+      this._messages.push(message);
+      this.chatDb.saveMessage(threadId, message);
     } catch (error) {
       console.error('Error adding message to thread:', error);
     }

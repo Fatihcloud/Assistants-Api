@@ -58,4 +58,14 @@ export class ChatDatabase {
       return [];
     }
   }
+
+  public deleteThread(threadId: string) {
+    const deleteQuery = 'DELETE FROM messages WHERE thread_id = ?';
+    try {
+      this.db.prepare(deleteQuery).run(threadId);
+    } catch (error) {
+      console.error('Error deleting thread from database:', error);
+    }
+  }
 }
+

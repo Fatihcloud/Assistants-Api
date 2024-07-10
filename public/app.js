@@ -1,146 +1,122 @@
-const socket = io('http://localhost:3000');
+const socket = io();
 
-socket.on('newMessage', function(data) {
-    console.log('Received new message via socket:', data);
-    if (data.threadId === window.currentThreadId) {
-        appendNewMessages(data.messages);
-    }
-});
+document.addEventListener("DOMContentLoaded", () => {
+  const threadList = document.getElementById("thread-list");
+  const messagesDiv = document.getElementById("messages");
+  const chatForm = document.getElementById("chat-form");
+  const messageInput = document.getElementById("message-input");
+  const newThreadButton = document.getElementById("new-thread-button");
+  const loadingIndicator = document.createElement("div");
+  loadingIndicator.id = "loading";
+  loadingIndicator.textContent = "Loading...";
+  messagesDiv.appendChild(loadingIndicator);
+  let currentThreadId = null;
 
-async function sendMessage(event) {
-    event.preventDefault(); // Formun otomatik olarak gönderilmesini engelle
-    const input = document.getElementById('message-input');
-    const message = input.value;
-    const threadId = window.currentThreadId;
-    console.log('Sending message:', message, 'to thread:', threadId);
-    if (message) {
-        const response = await fetch('http://localhost:3000/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message, threadId })
-        });
-        if (response.ok) {
-            const data = await response.json();
-            console.log('Response from sendMessage:', data);
-            if (data && data.messages && data.messages.length > 0) {
-                appendNewMessages([data.messages[data.messages.length - 1]]);
-            }
-            input.value = '';
-            input.focus();
-        } else {
-            console.error('Failed to send message', response.statusText);
-        }
-    }
-}
+  const loadThreads = async () => {
+    const response = await fetch("/api/threads");
+    const data = await response.json();
+    threadList.innerHTML = "";
+    data.threads.forEach((threadId) => {
+      const li = document.createElement("li");
+      li.textContent = `Thread ${threadId}`;
+      li.dataset.threadId = threadId;
 
-async function createNewThread(event) {
-    event.preventDefault(); // Formun otomatik olarak gönderilmesini engelle
-    const input = document.getElementById('message-input');
-    const message = input.value;
-    console.log('Creating new thread with initial message:', message);
-    if (message) {
-        const response = await fetch('http://localhost:3000/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message })
-        });
-        if (response.ok) {
-            const data = await response.json();
-            console.log('Response from createNewThread:', data);
-            if (data && data.threadId) {
-                window.currentThreadId = data.threadId;
-                updateMessageList(data.messages);
-                input.value = '';
-                loadThreads(); // Yeni thread oluşturulduğunda thread listesini yeniden yükle
-            }
-        } else {
-            console.error('Failed to create new thread', response.statusText);
-        }
-    }
-}
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = 'Delete';
+      deleteButton.className = 'delete-button';
+      deleteButton.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        await deleteThread(threadId);
+      });
 
-async function loadMessages(threadId) {
-    console.log('Loading messages for thread:', threadId);
-    const response = await fetch(`http://localhost:3000/api/messages?threadId=${threadId}`);
-    if (response.ok) {
-        const data = await response.json();
-        console.log('Messages loaded for thread:', threadId, data);
-        if (data && data.messages) {
-            updateMessageList(data.messages);
-        }
-    } else {
-        console.error('Failed to load messages', response.statusText);
-    }
-}
-
-async function loadThreads() {
-    console.log('Loading threads');
-    const response = await fetch('http://localhost:3000/api/threads');
-    if (response.ok) {
-        const data = await response.json();
-        console.log('Threads loaded:', data);
-        const threadList = document.getElementById('thread-list');
-        threadList.innerHTML = '';
-        if (data && data.threads) {
-            data.threads.forEach(thread => {
-                const li = document.createElement('li');
-                li.textContent = `Thread ${thread}`;
-                li.onclick = function() {
-                    switchThread(thread);
-                };
-                threadList.appendChild(li);
-            });
-        }
-    } else {
-        console.error('Failed to load threads', response.statusText);
-    }
-}
-
-async function switchThread(threadId) {
-    console.log('Switching to thread:', threadId);
-    window.currentThreadId = threadId;
-    const response = await fetch(`http://localhost:3000/api/messages?threadId=${threadId}`);
-    if (response.ok) {
-        const data = await response.json();
-        console.log('Switched to thread:', threadId, data);
-        if (data && data.messages) {
-            updateMessageList(data.messages);
-        }
-    } else {
-        console.error('Failed to switch thread', response.statusText);
-    }
-}
-
-function updateMessageList(messages) {
-    console.log('Updating message list with messages:', messages);
-    const messageList = document.getElementById('message-list');
-    messageList.innerHTML = '';
-    messages.forEach(message => {
-        const li = document.createElement('li');
-        li.classList.add(message.role);
-        li.textContent = `${message.role}: ${message.content}`;
-        messageList.appendChild(li);
+      li.appendChild(deleteButton);
+      li.addEventListener("click", () => selectThread(threadId));
+      threadList.appendChild(li);
     });
-}
+  };
 
-function appendNewMessages(messages) {
-    console.log('Appending new messages:', messages);
-    const messageList = document.getElementById('message-list');
-    messages.forEach(message => {
-        const li = document.createElement('li');
-        li.classList.add(message.role);
-        li.textContent = `${message.role}: ${message.content}`;
-        messageList.appendChild(li);
+  const loadMessages = async (threadId) => {
+    loadingIndicator.style.display = "block";
+    const response = await fetch(`/api/messages?threadId=${threadId}`);
+    const data = await response.json();
+    messagesDiv.innerHTML = "";
+    data.messages.forEach((message) => {
+      addMessageToChat(message.content, message.role);
     });
-}
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    loadingIndicator.style.display = "none";
+  };
 
-window.sendMessage = sendMessage;
-window.createNewThread = createNewThread;
-window.loadMessages = loadMessages;
-window.loadThreads = loadThreads;
-window.switchThread = switchThread;
+  const selectThread = (threadId) => {
+    currentThreadId = threadId;
+    loadMessages(threadId);
+  };
 
-document.addEventListener("DOMContentLoaded", function() {
-    loadThreads();
-    window.currentThreadId = null;
+  const startNewConversation = () => {
+    currentThreadId = null;
+    messagesDiv.innerHTML = "";
+    messageInput.value = "";
+  };
+
+  const addMessageToChat = (message, role) => {
+    const div = document.createElement("div");
+    div.classList.add("message", role);
+    div.innerHTML = message
+      .replace(/###\s(.*?)\n/g, "<h3>$1</h3>") // heading 3
+      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // bold
+      .replace(/\*(.*?)\*/g, "<em>$1</em>") // italic
+      .replace(/\n/g, "<br>"); // newline
+    messagesDiv.appendChild(div);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  };
+
+  const deleteThread = async (threadId) => {
+    const response = await fetch(`/api/thread/${threadId}`, {
+      method: 'DELETE',
+    });
+    if (response.ok) {
+      if (currentThreadId === threadId) {
+        startNewConversation();
+      }
+      loadThreads();
+    } else {
+      console.error('Failed to delete thread:', threadId);
+    }
+  };
+
+  chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const message = messageInput.value.trim();
+    if (!message) return;
+
+    // Mesajınızı ekrana ekleyin
+    addMessageToChat(message, "user");
+
+    // Input alanını temizleyin
+    messageInput.value = "";
+
+    // Mesajı sunucuya gönderin
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, threadId: currentThreadId }),
+    });
+
+    const data = await response.json();
+    currentThreadId = data.threadId;
+
+    // Karşıdan gelen mesajı bekleyin ve ekleyin
+    await loadMessages(currentThreadId);
+    loadThreads(); // Threads listesine yeni thread eklemek için tekrar yükle
+  });
+
+  newThreadButton.addEventListener("click", startNewConversation);
+
+  socket.on("newMessage", async (data) => {
+    if (data.threadId === currentThreadId) {
+      await loadMessages(currentThreadId);
+    }
+  });
+
+  loadThreads();
 });
