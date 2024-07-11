@@ -46,8 +46,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     loadingIndicator.style.display = "none";
-    MathJax.typeset(); // MathJax ile render et
-    hljs.highlightAll(); // Highlight.js ile kod bloklarını renklendir
+    hljs.highlightAll();
+    MathJax.typeset(); // Highlight.js ile kod bloklarını renklendir
   };
 
   const selectThread = (threadId) => {
@@ -73,24 +73,37 @@ document.addEventListener("DOMContentLoaded", () => {
   const addMessageToChat = (message, role) => {
     const div = document.createElement("div");
     div.classList.add("message", role);
-    div.innerHTML = message
-      .replace(/###\s(.*?)\n/g, "<h3>$1</h3>") // heading 3
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") // bold
-      .replace(/\*(.*?)\*/g, "<em>$1</em>") // italic
-      .replace(/```(\w+)\n([\s\S]*?)```/g, (match, p1, p2) => {
-        const escapedCode = escapeHtml(p2);
-        return `<div style="position: relative;">
-                  <pre><code class='language-${p1}'>${escapedCode}</code></pre>
-                  <button class="copy-button" onclick="copyToClipboard(\`${escapedCode}\`)">
-                    <i class="fas fa-copy"></i>
-                  </button>
-                </div>`;
-      }) // code block
-      .replace(/\n/g, "<br>"); // newline
+
+    // Markdown içeriğini HTML'e dönüştürürken latex ifadelerini işle
+    const markdownToHtml = (content) => {
+      //markdown işlemek
+      content = content.replace(/`(.*?)`/g, '<code>$1</code>');
+      content = content.replace(/_(.*?)_/g, '<em>$1</em>');
+      content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      // \n işle
+      content = content.replace(/\n/g, "<br>");
+      const latexRegex = /\$(.*?)\$/g;
+      return content.replace(latexRegex, (_, latex) => {
+        return `<span class="math-tex">${latex}</span>`;
+      });
+    };
+    div.innerHTML = markdownToHtml(escapeHtml(message));
+
+    // Add copy button to code blocks
+    div.querySelectorAll("pre code").forEach((codeBlock) => {
+      const button = document.createElement("button");
+      button.className = "copy-button";
+      button.innerHTML = '<i class="fas fa-copy"></i>';
+      button.addEventListener("click", () => copyToClipboard(codeBlock.textContent));
+      codeBlock.parentNode.insertBefore(button, codeBlock.nextSibling);
+    });
+
     messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    MathJax.typeset(); // MathJax ile render et
     hljs.highlightAll(); // Highlight.js ile kod bloklarını renklendir
+
+    // MathJax tarafından LaTeX ifadelerini işle
+    MathJax.typeset();
   };
 
   const deleteThread = async (threadId) => {

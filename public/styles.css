@@ -181,10 +181,6 @@ pre {
   color: #dcdcdc;
 }
 
-code {
-  font-family: 'Courier New', Courier, monospace;
-}
-
 #typing-indicator {
   display: none;
   margin-bottom: 15px;
