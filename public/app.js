@@ -22,10 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
       li.textContent = `Thread ${threadId}`;
       li.dataset.threadId = threadId;
 
-      const deleteButton = document.createElement('button');
-      deleteButton.textContent = 'Delete';
-      deleteButton.className = 'delete-button';
-      deleteButton.addEventListener('click', async (event) => {
+      const deleteButton = document.createElement("button");
+      deleteButton.textContent = "Delete";
+      deleteButton.className = "delete-button";
+      deleteButton.addEventListener("click", async (event) => {
         event.stopPropagation();
         await deleteThread(threadId);
       });
@@ -47,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
     loadingIndicator.style.display = "none";
     hljs.highlightAll();
-    MathJax.typeset(); // Highlight.js ile kod bloklarını renklendir
   };
 
   const selectThread = (threadId) => {
@@ -70,45 +69,50 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/'/g, "&#039;");
   };
 
+  const markdownToHtml = (content) => {
+    // Markdown içeriğindeki latex ifadelerini tespit etmek için regex \( ... \) ve \[ ... \] kullanıldı
+    const latexRegex = /\\\((.+?)\\\)|\\\[(.+?)\\\]/gs;
+  
+    content = content.replace(latexRegex, (match, p1, p2) => {
+      const latex = p1 || p2;
+      const html = katex.renderToString(latex, { throwOnError: false });
+      return html;
+    });
+  
+    // Markdown içeriğini HTML'ye dönüştürme
+    const htmlContent = marked.parse(content);
+    return htmlContent;
+  };
+
   const addMessageToChat = (message, role) => {
     const div = document.createElement("div");
     div.classList.add("message", role);
 
-    // Markdown içeriğini HTML'e dönüştürürken latex ifadelerini işle
-    const markdownToHtml = (content) => {
-      //markdown işlemek
-      content = content.replace(/`(.*?)`/g, '<code>$1</code>');
-      content = content.replace(/_(.*?)_/g, '<em>$1</em>');
-      content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      // \n işle
-      content = content.replace(/\n/g, "<br>");
-      const latexRegex = /\$(.*?)\$/g;
-      return content.replace(latexRegex, (_, latex) => {
-        return `<span class="math-tex">${latex}</span>`;
-      });
-    };
-    div.innerHTML = markdownToHtml(escapeHtml(message));
+    // Markdown'u HTML'ye dönüştürme
+    const htmlContent = markdownToHtml(message);
+    div.innerHTML = htmlContent;
 
-    // Add copy button to code blocks
+    // Kod blokları için kopyalama düğmesi ekleme
     div.querySelectorAll("pre code").forEach((codeBlock) => {
       const button = document.createElement("button");
       button.className = "copy-button";
       button.innerHTML = '<i class="fas fa-copy"></i>';
-      button.addEventListener("click", () => copyToClipboard(codeBlock.textContent));
+      button.addEventListener("click", () =>
+        copyToClipboard(codeBlock.textContent)
+      );
       codeBlock.parentNode.insertBefore(button, codeBlock.nextSibling);
     });
 
     messagesDiv.appendChild(div);
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    hljs.highlightAll(); // Highlight.js ile kod bloklarını renklendir
 
-    // MathJax tarafından LaTeX ifadelerini işle
-    MathJax.typeset();
+    hljs.highlightAll(); // Kod bloklarını renklendir
+    renderMathInElement(div); // KaTeX ile LaTeX ifadelerini işle
   };
 
   const deleteThread = async (threadId) => {
     const response = await fetch(`/api/thread/${threadId}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
     if (response.ok) {
       if (currentThreadId === threadId) {
@@ -116,7 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       loadThreads();
     } else {
-      console.error('Failed to delete thread:', threadId);
+      console.error("Failed to delete thread:", threadId);
     }
   };
 
@@ -168,10 +172,10 @@ function copyToClipboard(text) {
   document.body.appendChild(textArea);
   textArea.select();
   try {
-    document.execCommand('copy');
-    alert('Code copied to clipboard!');
+    document.execCommand("copy");
+    alert("Code copied to clipboard!");
   } catch (err) {
-    console.error('Unable to copy to clipboard', err);
+    console.error("Unable to copy to clipboard", err);
   }
   document.body.removeChild(textArea);
 }

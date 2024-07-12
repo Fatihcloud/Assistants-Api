@@ -51,11 +51,12 @@ body {
   background-color: #34495e;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 #thread-list li:hover {
   background-color: #1abc9c;
+  transform: scale(1.05);
 }
 
 #chat-container {
@@ -68,6 +69,9 @@ body {
   padding: 20px;
   background-color: #ecf0f1;
   border-bottom: 1px solid #bdc3c7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 #messages {
@@ -84,6 +88,7 @@ body {
   border-radius: 10px;
   max-width: 70%;
   word-wrap: break-word;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .message.user {
@@ -94,12 +99,22 @@ body {
   text-align: right;
 }
 
+.message.user:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
 .message.assistant {
   background-color: #bdc3c7;
   color: #2c3e50;
   align-self: flex-start;
   margin-right: auto;
   text-align: left;
+}
+
+.message.assistant:hover {
+  background-color: #95a5a6;
+  transform: scale(1.05);
 }
 
 #chat-form {
@@ -115,6 +130,11 @@ body {
   border: 1px solid #bdc3c7;
   border-radius: 20px;
   margin-right: 10px;
+  transition: border-color 0.3s;
+}
+
+#chat-form input:focus {
+  border-color: #3498db;
 }
 
 #chat-form button {
@@ -124,11 +144,12 @@ body {
   border-radius: 50%;
   color: white;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 #chat-form button:hover {
   background-color: #2980b9;
+  transform: scale(1.1);
 }
 
 #loading {
@@ -150,11 +171,12 @@ body {
   color: white;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 #new-thread-button:hover {
   background-color: #2980b9;
+  transform: scale(1.05);
 }
 
 .delete-button {
@@ -165,11 +187,12 @@ body {
   color: white;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .delete-button:hover {
   background-color: #c0392b;
+  transform: scale(1.05);
 }
 
 pre {
@@ -218,8 +241,10 @@ pre {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.3s, transform 0.2s;
 }
 
 .copy-button:hover {
   color: #2980b9;
+  transform: scale(1.1);
 }
